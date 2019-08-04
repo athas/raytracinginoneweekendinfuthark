@@ -207,35 +207,14 @@ let random_object_at (a: f32) (b: f32) (rng: rng.rng) : (rng.rng, obj) =
   in (rng,
       #sphere {center, radius=0.2, material})
 
-import "lib/github.com/athas/matte/colour"
-
-let world : []obj = [#sphere {center=vec(0,0,-1),
-                              radius=0.5,
-                              material=#lambertian {albedo=vec(0.1,0.2,0.5)}},
-                     #sphere {center=vec(0,-100.5,-1),
-                              radius=100,
-                              material=#lambertian {albedo=vec(0.8,0.8,0.0)}},
-                     #sphere {center=vec(1,0,-1),
-                              radius=0.5,
-                              material=#metal {albedo=vec(0.8,0.6,0.2), fuzz=0.2}},
-                     #sphere {center=vec(-1,0,-1),
-                              radius=0.5,
-                              material=#dielectric {ref_idx=1.5}},
-                     #sphere {center=vec(-1,0,-1),
-                              radius= -0.45,
-                              material=#dielectric {ref_idx=1.5}}]
-
-let ok_obj (obj: obj) =
-  match obj
-  case (#sphere {center, radius=_, material=_}) ->
-    vec3.norm (center vec3.- vec(4,0.2,0)) > 0.9
-
 -- From http://stackoverflow.com/a/12996028
 let hash (x: i32): i32 =
   let x = ((x >> 16) ^ x) * 0x45d9f3b
   let x = ((x >> 16) ^ x) * 0x45d9f3b
   let x = ((x >> 16) ^ x) in
   x
+
+import "lib/github.com/athas/matte/colour"
 
 let main (nx: i32) (ny: i32) (ns: i32): [ny][nx]argb.colour =
   let lookfrom = vec(13,2,3)
@@ -257,7 +236,7 @@ let main (nx: i32) (ny: i32) (ns: i32): [ny][nx]argb.colour =
                    , #sphere {center=vec(4,1,0), radius=1, material=#metal {albedo=vec(0.6,0.6,0.5), fuzz=0}}
                    ]
 
-  let world = filter ok_obj (flatten objs) ++ fixed_objs
+  let world = flatten objs ++ fixed_objs
 
   let sample j i (rng, acc) = let (rng, ud) = rand rng
                               let (rng, vd) = rand rng

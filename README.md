@@ -38,12 +38,12 @@ differences.
   [cpprandom](https://github.com/diku-dk/cpprandom) library to
   generate random numbers.  This requires threading through an RNG
   state into many functions, which can look quite noisy.  This was the
-  only major annoying part of the port.
+  only particularly annoying part of the port.
 
-There are some artifacts left (look at the concentric stripes on the
-ground in the image above).  I'm not sure where they come from, but I
-suspect either that I seed the RNGs poorly (I had some other trouble
-with that), or numerical issues.
+There are some artifacts left - for example, look at the concentric
+stripes on the ground in the image above.  I'm not sure where they
+come from, but I suspect either that I seed the RNGs poorly (I had
+some other trouble with that), or numerical issues.
 
 ## Running
 

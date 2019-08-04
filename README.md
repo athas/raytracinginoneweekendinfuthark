@@ -11,7 +11,7 @@ code.  While
 implemented in Futhark, these all focused on real-time rendering, and
 supported very few visual effects (e.g. only one ray per pixel).
 
-The scene below took about 12 seconds to render on and AMD Vega 64
+The scene below took about 9 seconds to render on and AMD Vega 64
 GPU, and is 800x400 pixels, with 200 samples per pixel, and a maximum
 of 50 reflections per ray.
 

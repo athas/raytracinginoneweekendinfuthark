@@ -45,7 +45,7 @@ module lys : lys with text_content = text_content = {
                  else if key == SDLK_9 then 9
                  else 0
       let (rngs, image) = shoot s.h s.w rays s.world s.cam s.rngs
-      let comb cur new = argb.mix (r32 s.steps) cur 1 new
+      let comb cur new = argb.mix (r32 s.steps) cur (r32 rays) new
       in s with rngs = rngs
            with image = map2 (map2 comb) s.image image
            with steps = s.steps + rays
@@ -60,6 +60,7 @@ module lys : lys with text_content = text_content = {
          with w = w
          with rngs = rngs
          with image = tabulate_2d h w (\_ _ -> argb.black)
+         with steps = 0
 
   let render (s: state) = s.image
 

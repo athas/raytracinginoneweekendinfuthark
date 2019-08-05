@@ -1,3 +1,7 @@
 raytracer
 raytracer.c
 lib
+*_wrapper*
+*printf*
+raytracer-gui
+raytracer-gui.c

@@ -58,6 +58,21 @@ $ futhark opencl raytracer.fut
 $ echo 800 400 200 | ./raytracer -b | python data2png.py scene.png
 ```
 
+GUI
+===
+
+If you are feeling adventuresome, you can also try an interactive
+(sort of) GUI by running:
+
+```
+$ futhark pkg sync
+$ make run
+```
+
+You will see a black screen.  Press a number key to fire that many
+rays from each pixel.  See how the image improves!  (Slightly and
+slowly.)
+
 ## See Also
 
 * [Accelerated Ray Tracing in One Weekend in

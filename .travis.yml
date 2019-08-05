@@ -18,3 +18,4 @@ install:
 
 script:
   - futhark c raytracer.fut
+  - make

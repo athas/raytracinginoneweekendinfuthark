@@ -216,15 +216,8 @@ let hash (x: i32): i32 =
 
 import "lib/github.com/athas/matte/colour"
 
-let main (nx: i32) (ny: i32) (ns: i32): [ny][nx]argb.colour =
-  let lookfrom = vec(13,2,3)
-  let lookat = vec(0,0,0)
-  let dist_to_focus = 10
-  let aperture = 0.1
-  let cam = camera lookfrom lookat (vec(0,1,0)) 20 (r32 nx / r32 ny)
-                   aperture dist_to_focus
-
-  let mk_obj a b = let rng = rng.rng_from_seed [hash a ^ hash b]
+let random_world (seed: i32) =
+  let mk_obj a b = let rng = rng.rng_from_seed [seed, a ^ b]
                    in random_object_at (r32 a) (r32 b) rng
   let (rngs, objs) = map (\a -> map (mk_obj a) (-11..<11)) (-11..<11)
                      |> map unzip |> unzip
@@ -238,6 +231,9 @@ let main (nx: i32) (ny: i32) (ns: i32): [ny][nx]argb.colour =
 
   let world = flatten objs ++ fixed_objs
 
+  in (rng, world)
+
+let render (nx: i32) (ny: i32) (ns: i32) (world: []obj) (cam: camera) (rngs: [ny][nx]rng.rng) =
   let sample j i (rng, acc) = let (rng, ud) = rand rng
                               let (rng, vd) = rand rng
                               let u = (r32(i) + ud) / r32(nx)
@@ -245,7 +241,19 @@ let main (nx: i32) (ny: i32) (ns: i32): [ny][nx]argb.colour =
                               let (rng, r) = get_ray cam u v rng
                               let (rng, col) = color world r rng
                               in (rng, acc vec3.+ col)
-  let pixel j i = let (_, col) = iterate ns (sample j i) (rng, vec(0,0,0))
+  let pixel j i = let rng = rngs[j,i]
+                  let (rng, col) = iterate ns (sample j i) (rng, vec(0,0,0))
                   let col = ((1/r32 ns) `vec3.scale` col) |> vec3.map f32.sqrt
-                  in argb.from_rgba col.x col.y col.z 0
+                  in (rng, argb.from_rgba col.x col.y col.z 0)
   in tabulate_2d ny nx pixel |> reverse
+
+let main (nx: i32) (ny: i32) (ns: i32): [ny][nx]argb.colour =
+  let lookfrom = vec(13,2,3)
+  let lookat = vec(0,0,0)
+  let dist_to_focus = 10
+  let aperture = 0.1
+  let cam = camera lookfrom lookat (vec(0,1,0)) 20 (r32 nx / r32 ny)
+                   aperture dist_to_focus
+  let (rng, world) = random_world (nx ^ ny ^ ns)
+  let rngs = rng.split_rng (nx*ny) rng |> unflatten ny nx
+  in render nx ny ns world cam rngs |> map (map (.2))

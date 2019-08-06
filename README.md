@@ -20,7 +20,7 @@ of 50 reflections per ray.
 ## Details
 
 Most of the design and the coding style has been maintained from the
-original C++ implementation.  However, the are some substantial
+original C++ implementation.  However, there are some substantial
 differences.
 
 * Futhark does not support recursion.  The recursive `color` function

@@ -23,7 +23,7 @@ let refract (v: vec3) (n: vec3) (ni_over_nt: f32) : refraction =
   let discriminant = 1 - ni_over_nt*ni_over_nt*(1-dt*dt)
   in if discriminant > 0
      then #refract ((ni_over_nt `vec3.scale` (uv vec3.- (dt `vec3.scale` n)))
-                      vec3.- (f32.sqrt discriminant `vec3.scale` n))
+                    vec3.- (f32.sqrt discriminant `vec3.scale` n))
      else #no_refract
 
 let schlick (cosine: f32) (ref_idx: f32) =
@@ -192,18 +192,19 @@ let random_object_at (a: f32) (b: f32) (rng: rng.rng) : (rng.rng, obj) =
   let randp rng = let (rng, x) = rand rng
                   let (rng, y) = rand rng
                   in (rng, x * y)
-  let (rng, x) = randp rng
-  let (rng, y) = randp rng
-  let (rng, z) = randp rng
-  let albedo = vec(x,y,z)
-  let (rng, fuzz) = rand rng
   let (rng, choose_mat) = rand rng
-  let material =
-    if choose_mat < 0.8
-    then #lambertian {albedo}
-    else if choose_mat < 0.95
-    then #metal {albedo, fuzz}
-    else #dielectric {ref_idx=1.5}
+  let (rng, material) =
+    if choose_mat > 0.95 then
+      (rng, #dielectric {ref_idx=1.5})
+    else
+    let (rng, x) = randp rng
+    let (rng, y) = randp rng
+    let (rng, z) = randp rng
+    let albedo = vec(x,y,z)
+    let (rng, fuzz) = rand rng
+    in if choose_mat > 0.8
+       then (rng, #metal {albedo, fuzz})
+       else (rng, #lambertian {albedo})
   in (rng,
       #sphere {center, radius=0.2, material})
 

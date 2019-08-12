@@ -248,6 +248,9 @@ let render (nx: i32) (ny: i32) (ns: i32) (world: []obj) (cam: camera) (rngs: [ny
                   in (rng, argb.from_rgba col.x col.y col.z 0)
   in tabulate_2d ny nx pixel |> reverse
 
+-- ==
+-- compiled input { 800 400 200 }
+
 let main (nx: i32) (ny: i32) (ns: i32): [ny][nx]argb.colour =
   let lookfrom = vec(13,2,3)
   let lookat = vec(0,0,0)

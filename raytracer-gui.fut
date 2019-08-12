@@ -18,6 +18,7 @@ module lys : lys with text_content = text_content = {
                , image: [][]argb.colour
                , fraction: f32
                , steps: i32
+               , scanline: i32
                }
 
   let shoot h w nss world cam rngs =
@@ -32,23 +33,24 @@ module lys : lys with text_content = text_content = {
     let (rngs, image) = (rngs, tabulate_2d h w (\_ _ -> argb.black))
     let samples = tabulate_2d h w (\_ _ -> 0)
     in {h, w, world, lookfrom, lookat, rngs, image,
-        fraction = 0.1, steps = 0, samples}
+        fraction = 0.1, steps = 0, samples, scanline = 0}
 
   let event (e: event) s : state =
     match e
-    case #step fps ->
+    case #step td ->
+      let fps = 1/td
       let fraction = (if fps > target_fps
                       then s.fraction * 1.1
                       else s.fraction * 0.9)
                      |> f32.max 0.01 |> f32.min 1
       let chunk_size = t32 (r32 s.h * fraction)
-      let chunk_start = (s.steps * chunk_size) % s.h
+      let chunk_start = s.scanline
       let chunk_end = (chunk_start + chunk_size) % s.h
 
       let in_chunk j =
         if chunk_start < chunk_end
-        then j > chunk_start && j <= chunk_end
-        else j > chunk_start || j <= chunk_end
+        then j >= chunk_start && j < chunk_end
+        else j >= chunk_start || j < chunk_end
 
       let samples j =
         replicate s.w (if in_chunk j then 1 else 0)
@@ -68,6 +70,7 @@ module lys : lys with text_content = text_content = {
            with fraction = fraction
            with steps = s.steps + 1
            with samples = map2 (map2 (+)) s.samples nss
+           with scanline = chunk_end
 
     case #keydown {key} ->
       if key == SDLK_DOWN

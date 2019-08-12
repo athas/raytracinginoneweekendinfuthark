@@ -69,9 +69,7 @@ $ futhark pkg sync
 $ make run
 ```
 
-You will see a black screen.  Press a number key to fire that many
-rays from each pixel.  See how the image improves!  (Slightly and
-slowly.)
+The rendering will gradually improve the image quality.
 
 ## See Also
 

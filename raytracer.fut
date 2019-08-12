@@ -234,7 +234,7 @@ let random_world (seed: i32) =
 
   in (rng, world)
 
-let render (nx: i32) (ny: i32) (ns: i32) (world: []obj) (cam: camera) (rngs: [ny][nx]rng.rng) =
+let render (nx: i32) (ny: i32) (nss: [ny][nx]i32) (world: []obj) (cam: camera) (rngs: [ny][nx]rng.rng) =
   let sample j i (rng, acc) = let (rng, ud) = rand rng
                               let (rng, vd) = rand rng
                               let u = (r32(i) + ud) / r32(nx)
@@ -243,6 +243,7 @@ let render (nx: i32) (ny: i32) (ns: i32) (world: []obj) (cam: camera) (rngs: [ny
                               let (rng, col) = color world r rng
                               in (rng, acc vec3.+ col)
   let pixel j i = let rng = rngs[j,i]
+                  let ns = (reverse nss)[j,i]
                   let (rng, col) = iterate ns (sample j i) (rng, vec(0,0,0))
                   let col = ((1/r32 ns) `vec3.scale` col) |> vec3.map f32.sqrt
                   in (rng, argb.from_rgba col.x col.y col.z 0)
@@ -260,4 +261,5 @@ let main (nx: i32) (ny: i32) (ns: i32): [ny][nx]argb.colour =
                    aperture dist_to_focus
   let (rng, world) = random_world (nx ^ ny ^ ns)
   let rngs = rng.split_rng (nx*ny) rng |> unflatten ny nx
-  in render nx ny ns world cam rngs |> map (map (.2))
+  let nss = replicate ny (replicate nx ns)
+  in render nx ny nss world cam rngs |> map (map (.2))

@@ -165,8 +165,7 @@ let scattering (r: ray) (h: hit_info) (rng: rng.rng) : (rng.rng, scatter) =
        case #no_refract ->
          (rng, #scatter {attenuation, scattered={origin=h.p, direction=reflected}})
 
-let color (objs: []obj) (r: ray) (rng: rng.rng) : (rng.rng, vec3) =
-  let max_depth = 50i32
+let color (max_depth: i32) (objs: []obj) (r: ray) (rng: rng.rng) : (rng.rng, vec3) =
   let ((rng, _), (_, color)) =
     loop ((rng, r), (depth, color)) = ((rng, r), (0, vec(1,1,1))) while depth < max_depth
     do match hit objs r 0.00001 f32.highest
@@ -234,13 +233,13 @@ let random_world (seed: i32) =
 
   in (rng, world)
 
-let render (nx: i32) (ny: i32) (nss: [ny][nx]i32) (world: []obj) (cam: camera) (rngs: [ny][nx]rng.rng) =
+let render (max_depth: i32) (nx: i32) (ny: i32) (nss: [ny][nx]i32) (world: []obj) (cam: camera) (rngs: [ny][nx]rng.rng) =
   let sample j i (rng, acc) = let (rng, ud) = rand rng
                               let (rng, vd) = rand rng
                               let u = (r32(i) + ud) / r32(nx)
                               let v = (r32(j) + vd) / r32(ny)
                               let (rng, r) = get_ray cam u v rng
-                              let (rng, col) = color world r rng
+                              let (rng, col) = color max_depth world r rng
                               in (rng, acc vec3.+ col)
   let pixel j i = let rng = rngs[j,i]
                   let ns = (reverse nss)[j,i]
@@ -262,4 +261,4 @@ let main (nx: i32) (ny: i32) (ns: i32): [ny][nx]argb.colour =
   let (rng, world) = random_world (nx ^ ny ^ ns)
   let rngs = rng.split_rng (nx*ny) rng |> unflatten ny nx
   let nss = replicate ny (replicate nx ns)
-  in render nx ny nss world cam rngs |> map (map (.2))
+  in render 50 nx ny nss world cam rngs |> map (map (.2))

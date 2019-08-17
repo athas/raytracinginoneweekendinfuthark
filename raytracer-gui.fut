@@ -2,8 +2,9 @@ import "lib/github.com/diku-dk/lys/lys"
 import "lib/github.com/athas/matte/colour"
 
 module raytracer = import "raytracer"
+module vec3 = raytracer.vec3
 
-type text_content = (f32, i32)
+type text_content = (f32, i32, i32)
 
 let target_fps : f32 = 24
 
@@ -22,7 +23,7 @@ module lys : lys with text_content = text_content = {
                }
 
   let shoot h w nss world cam rngs =
-    raytracer.render w h nss world cam rngs
+    raytracer.render 10 w h nss world cam rngs
     |> map unzip |> unzip
 
   let init seed h w : state =
@@ -64,7 +65,9 @@ module lys : lys with text_content = text_content = {
       let nss = tabulate s.h samples
       let (rngs, image) = shoot s.h s.w nss s.world cam s.rngs
       let comb cur_ns cur new_ns new =
-        argb.mix (r32 cur_ns) cur (r32 new_ns) new
+        if new_ns == 0
+        then cur
+        else argb.mix (r32 cur_ns) cur (r32 new_ns) new
       in s with rngs = rngs
            with image = map4 (map4 comb) s.samples s.image nss image
            with fraction = fraction
@@ -73,13 +76,15 @@ module lys : lys with text_content = text_content = {
            with scanline = chunk_end
 
     case #keydown {key} ->
+      let ahead = vec3.normalise (s.lookat vec3.- s.lookfrom)
+      in
       if key == SDLK_DOWN
       then init 123 s.h s.w
-           with lookfrom = (s.lookfrom with z = s.lookfrom.z - 1)
+           with lookfrom = s.lookfrom vec3.+ ahead
            with world = s.world
       else if key == SDLK_UP
       then init 123 s.h s.w
-           with lookfrom = (s.lookfrom with z = s.lookfrom.z + 1)
+           with lookfrom = s.lookfrom vec3.- ahead
            with world = s.world
       else s
 
@@ -91,10 +96,12 @@ module lys : lys with text_content = text_content = {
 
   let render (s: state) = s.image
 
-  type text_content = (f32, i32)
+  type text_content = (f32, i32, i32)
   let grab_mouse = false
-  let text_format = "Fraction: %f\nFPS: %d"
+  let text_format = "Fraction: %f (%d pixels per second)\nFPS: %d"
   let text_content (fps: f32) (s: state) =
-    (s.fraction, t32 fps)
-  let text_colour _ = argb.white
+    (s.fraction,
+     t32 (r32 (s.h * s.w) * s.fraction),
+     t32 fps)
+  let text_colour _ = argb.black
 }

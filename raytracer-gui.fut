@@ -98,7 +98,7 @@ module lys : lys with text_content = text_content = {
 
   type text_content = (f32, i32, i32)
   let grab_mouse = false
-  let text_format = "Fraction: %f (%d pixels per second)\nFPS: %d"
+  let text_format = "Fraction: %f (%d pixels per frame)\nFPS: %d"
   let text_content (fps: f32) (s: state) =
     (s.fraction,
      t32 (r32 (s.h * s.w) * s.fraction),

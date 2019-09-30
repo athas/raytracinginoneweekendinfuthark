@@ -14,7 +14,7 @@ module lys : lys with text_content = text_content = {
                , world: []raytracer.obj
                , lookfrom: raytracer.vec3
                , lookat: raytracer.vec3
-               , rngs: [][]raytracer.rng.rng
+               , rngs: [][]raytracer.rng
                , samples: [][]i32
                , image: [][]argb.colour
                , fraction: f32
@@ -30,7 +30,7 @@ module lys : lys with text_content = text_content = {
     let (rng, world) = raytracer.random_world seed
     let lookfrom = raytracer.vec(13,2,3)
     let lookat = raytracer.vec(0,0,0)
-    let rngs = raytracer.rng.split_rng (h*w) rng |> unflatten h w
+    let rngs = raytracer.rnge.split_rng (h*w) rng |> unflatten h w
     let (rngs, image) = (rngs, tabulate_2d h w (\_ _ -> argb.black))
     let samples = tabulate_2d h w (\_ _ -> 0)
     in {h, w, world, lookfrom, lookat, rngs, image,

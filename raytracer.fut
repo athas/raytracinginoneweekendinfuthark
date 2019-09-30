@@ -33,10 +33,11 @@ let schlick (cosine: f32) (ref_idx: f32) =
 
 import "lib/github.com/diku-dk/cpprandom/random"
 
-module rng = pcg32
-module dist = uniform_real_distribution f32 rng
+module rnge = pcg32
+module dist = uniform_real_distribution f32 rnge
+type rng = rnge.rng
 
-let rand : rng.rng -> (rng.rng, f32) = dist.rand (0,1)
+let rand : rng -> (rng, f32) = dist.rand (0,1)
 
 let random_in_unit_sphere rng =
   let new rng = let (rng, x) = rand rng
@@ -71,7 +72,7 @@ let camera (lookfrom: vec3) (lookat: vec3) (vup: vec3) (vfov: f32) (aspect: f32)
      , origin, u, v, w
      , lens_radius = aperture / 2}
 
-let get_ray (c: camera) (s: f32) (t: f32) (rng: rng.rng) : (rng.rng, ray) =
+let get_ray (c: camera) (s: f32) (t: f32) (rng: rng) : (rng, ray) =
   let {origin, lower_left_corner, horizontal, vertical, u, v, w=_, lens_radius} = c
   let (rng, p) = random_in_unit_sphere rng
   let rd = lens_radius `vec3.scale` p
@@ -127,7 +128,7 @@ let hit [n] (objs: [n]obj) (r: ray) (t_min: f32) (t_max: f32) : hit =
 type scatter = #scatter {attenuation: vec3, scattered: ray}
              | #no_scatter
 
-let scattering (r: ray) (h: hit_info) (rng: rng.rng) : (rng.rng, scatter) =
+let scattering (r: ray) (h: hit_info) (rng: rng) : (rng, scatter) =
   match h.material
 
   case #lambertian {albedo} ->
@@ -165,7 +166,7 @@ let scattering (r: ray) (h: hit_info) (rng: rng.rng) : (rng.rng, scatter) =
        case #no_refract ->
          (rng, #scatter {attenuation, scattered={origin=h.p, direction=reflected}})
 
-let color (max_depth: i32) (objs: []obj) (r: ray) (rng: rng.rng) : (rng.rng, vec3) =
+let color (max_depth: i32) (objs: []obj) (r: ray) (rng: rng) : (rng, vec3) =
   let ((rng, _), (_, color)) =
     loop ((rng, r), (depth, color)) = ((rng, r), (0, vec(1,1,1))) while depth < max_depth
     do match hit objs r 0.00001 f32.highest
@@ -184,7 +185,7 @@ let color (max_depth: i32) (objs: []obj) (r: ray) (rng: rng.rng) : (rng.rng, vec
          in ((rng, r), (max_depth, color'))
   in (rng, color)
 
-let random_object_at (a: f32) (b: f32) (rng: rng.rng) : (rng.rng, obj) =
+let random_object_at (a: f32) (b: f32) (rng: rng) : (rng, obj) =
   let (rng, center) = let (rng, xd) = rand rng
                       let (rng, yd) = rand rng
                       in (rng, vec(a+0.9*xd, 0.2, b+0.9*yd))
@@ -217,11 +218,11 @@ let hash (x: i32): i32 =
 import "lib/github.com/athas/matte/colour"
 
 let random_world (seed: i32) =
-  let mk_obj a b = let rng = rng.rng_from_seed [seed, a ^ b]
+  let mk_obj a b = let rng = rnge.rng_from_seed [seed, a ^ b]
                    in random_object_at (r32 a) (r32 b) rng
   let (rngs, objs) = map (\a -> map (mk_obj a) (-11..<11)) (-11..<11)
                      |> map unzip |> unzip
-  let rng = rng.join_rng (flatten rngs)
+  let rng = rnge.join_rng (flatten rngs)
 
   let fixed_objs = [ #sphere {center=vec(0,-1000,0), radius=1000, material=#lambertian {albedo=vec(0.5,0.5,0.5)}}
                    , #sphere {center=vec(0,1,0), radius=1, material=#dielectric {ref_idx=1.5}}
@@ -233,7 +234,7 @@ let random_world (seed: i32) =
 
   in (rng, world)
 
-let render (max_depth: i32) (nx: i32) (ny: i32) (nss: [ny][nx]i32) (world: []obj) (cam: camera) (rngs: [ny][nx]rng.rng) =
+let render (max_depth: i32) (nx: i32) (ny: i32) (nss: [ny][nx]i32) (world: []obj) (cam: camera) (rngs: [ny][nx]rng) =
   let sample j i (rng, acc) = let (rng, ud) = rand rng
                               let (rng, vd) = rand rng
                               let u = (r32(i) + ud) / r32(nx)
@@ -259,6 +260,6 @@ let main (nx: i32) (ny: i32) (ns: i32): [ny][nx]argb.colour =
   let cam = camera lookfrom lookat (vec(0,1,0)) 20 (r32 nx / r32 ny)
                    aperture dist_to_focus
   let (rng, world) = random_world (nx ^ ny ^ ns)
-  let rngs = rng.split_rng (nx*ny) rng |> unflatten ny nx
+  let rngs = rnge.split_rng (nx*ny) rng |> unflatten ny nx
   let nss = replicate ny (replicate nx ns)
   in render 50 nx ny nss world cam rngs |> map (map (.2))

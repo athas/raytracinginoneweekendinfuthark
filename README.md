@@ -47,10 +47,11 @@ some other trouble with that), or numerical issues.
 
 ## Running
 
-You will need Futhark 0.12.0 or newer to run this code.  Note that as
-of this writing, this is an unreleased version.  You will also need
+You will need Futhark 0.12.1 or newer to run this code.  You will also
+need
 [data2png.py](https://github.com/diku-dk/futhark/blob/master/tools/data2png.py),
-which turns Futhark values into PNG images.  Once these are available, run:
+which turns Futhark values into PNG images.  Once these are available,
+run:
 
 ```
 $ futhark pkg sync

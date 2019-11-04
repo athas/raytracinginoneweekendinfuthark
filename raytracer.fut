@@ -217,10 +217,10 @@ let hash (x: i32): i32 =
 
 import "lib/github.com/athas/matte/colour"
 
-let random_world (seed: i32) =
+let random_world (seed: i32) (n: i32) =
   let mk_obj a b = let rng = rnge.rng_from_seed [seed, a ^ b]
                    in random_object_at (r32 a) (r32 b) rng
-  let (rngs, objs) = map (\a -> map (mk_obj a) (-11..<11)) (-11..<11)
+  let (rngs, objs) = map (\a -> map (mk_obj a) (-n..<n)) (-n..<n)
                      |> map unzip |> unzip
   let rng = rnge.join_rng (flatten rngs)
 
@@ -252,14 +252,14 @@ let render (max_depth: i32) (nx: i32) (ny: i32) (nss: [ny][nx]i32) (world: []obj
 -- ==
 -- compiled input { 800 400 200 }
 
-let main (nx: i32) (ny: i32) (ns: i32): [ny][nx]argb.colour =
+let main (nx: i32) (ny: i32) (ns: i32) (nobj: i32): [ny][nx]argb.colour =
   let lookfrom = vec(13,2,3)
   let lookat = vec(0,0,0)
   let dist_to_focus = 10
   let aperture = 0.1
   let cam = camera lookfrom lookat (vec(0,1,0)) 20 (r32 nx / r32 ny)
                    aperture dist_to_focus
-  let (rng, world) = random_world (nx ^ ny ^ ns)
+  let (rng, world) = random_world (nx ^ ny ^ ns) nobj
   let rngs = rnge.split_rng (nx*ny) rng |> unflatten ny nx
   let nss = replicate ny (replicate nx ns)
   in render 50 nx ny nss world cam rngs |> map (map (.2))

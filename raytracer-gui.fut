@@ -27,7 +27,7 @@ module lys : lys with text_content = text_content = {
     |> map unzip |> unzip
 
   let init seed h w : state =
-    let (rng, world) = raytracer.random_world seed
+    let (rng, world) = raytracer.random_world seed 11
     let lookfrom = raytracer.vec(13,2,3)
     let lookat = raytracer.vec(0,0,0)
     let rngs = raytracer.rnge.split_rng (h*w) rng |> unflatten h w

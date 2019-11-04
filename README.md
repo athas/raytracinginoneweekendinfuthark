@@ -56,7 +56,7 @@ run:
 ```
 $ futhark pkg sync
 $ futhark opencl raytracer.fut
-$ echo 800 400 200 | ./raytracer -b | python data2png.py scene.png
+$ echo 800 400 200 11 | ./raytracer -b | python data2png.py /dev/stdin scene.png
 ```
 
 GUI

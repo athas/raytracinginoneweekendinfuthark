@@ -40,9 +40,9 @@ type rng = rnge.rng
 let rand : rng -> (rng, f32) = dist.rand (0,1)
 
 let random_in_unit_sphere rng =
-  let new rng = let (rng, x) = rand rng
-                let (rng, y) = rand rng
-                let (rng, z) = rand rng
+  let new rng = let (rng, x) = dist.rand (-1, 1) rng
+                let (rng, y) = dist.rand (-1, 1) rng
+                let (rng, z) = dist.rand (-1, 1) rng
                 in (rng, vec(x,y,z))
   let outside_sphere = vec3.quadrance >-> (>=1)
   in iterate_while ((.2) >-> outside_sphere) ((.1) >-> new) (new rng)

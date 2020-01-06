@@ -27,7 +27,7 @@ module lys : lys with text_content = text_content = {
     |> map unzip |> unzip
 
   let init seed h w : state =
-    let (rng, world) = raytracer.random_world seed 11
+    let (rng, world) = raytracer.random_world (i32.u32 seed) 11
     let lookfrom = raytracer.vec(13,2,3)
     let lookat = raytracer.vec(0,0,0)
     let rngs = raytracer.rnge.split_rng (h*w) rng |> unflatten h w
@@ -91,14 +91,14 @@ module lys : lys with text_content = text_content = {
     case _ -> s
 
   let resize h w (s: state) =
-    init s.steps h w with lookfrom = s.lookfrom
-                     with lookat = s.lookat
+    init (u32.i32 s.steps) h w with lookfrom = s.lookfrom
+                               with lookat = s.lookat
 
   let render (s: state) = s.image
 
   type text_content = (f32, i32, i32)
   let grab_mouse = false
-  let text_format = "Fraction: %f (%d pixels per frame)\nFPS: %d"
+  let text_format () = "Fraction: %f (%d pixels per frame)\nFPS: %d"
   let text_content (fps: f32) (s: state) =
     (s.fraction,
      t32 (r32 (s.h * s.w) * s.fraction),

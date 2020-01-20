@@ -220,7 +220,8 @@ import "lib/github.com/athas/matte/colour"
 let random_world (seed: i32) (n: i32) =
   let mk_obj a b = let rng = rnge.rng_from_seed [seed, a ^ b]
                    in random_object_at (r32 a) (r32 b) rng
-  let (rngs, objs) = map (\a -> map (mk_obj a) (-n..<n)) (-n..<n)
+  let span = -n..<n
+  let (rngs, objs) = map (\a -> map (mk_obj a) span) span
                      |> map unzip |> unzip
   let rng = rnge.join_rng (flatten rngs)
 

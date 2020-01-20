@@ -36,7 +36,7 @@ module lys : lys with text_content = text_content = {
     in {h, w, world, lookfrom, lookat, rngs, image,
         fraction = 0.1, steps = 0, samples, scanline = 0}
 
-  let event (e: event) s : state =
+  let event (e: event) (s: state) : state =
     match e
     case #step td ->
       let fps = 1/td
@@ -53,8 +53,7 @@ module lys : lys with text_content = text_content = {
         then j >= chunk_start && j < chunk_end
         else j >= chunk_start || j < chunk_end
 
-      let samples j =
-        replicate s.w (if in_chunk j then 1 else 0)
+      let samples j _ = if in_chunk j then 1 else 0
 
       let dist_to_focus = 10
       let aperture = 0.1
@@ -62,7 +61,7 @@ module lys : lys with text_content = text_content = {
                 s.lookfrom s.lookat (raytracer.vec(0,1,0)) 20
                 (r32 s.w / r32 s.h) aperture dist_to_focus
 
-      let nss = tabulate s.h samples
+      let nss = tabulate_2d s.h s.w samples
       let (rngs, image) = shoot s.h s.w nss s.world cam s.rngs
       let comb cur_ns cur new_ns new =
         if new_ns == 0

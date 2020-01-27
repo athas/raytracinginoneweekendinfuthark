@@ -9,18 +9,18 @@ type text_content = (f32, i32, i32)
 let target_fps : f32 = 24
 
 module lys : lys with text_content = text_content = {
-  type state = { h: i32
-               , w: i32
-               , world: []raytracer.obj
-               , lookfrom: raytracer.vec3
-               , lookat: raytracer.vec3
-               , rngs: [][]raytracer.rng
-               , samples: [][]i32
-               , image: [][]argb.colour
-               , fraction: f32
-               , steps: i32
-               , scanline: i32
-               }
+  type~ state = { h: i32
+                , w: i32
+                , world: []raytracer.obj
+                , lookfrom: raytracer.vec3
+                , lookat: raytracer.vec3
+                , rngs: [][]raytracer.rng
+                , samples: [][]i32
+                , image: [][]argb.colour
+                , fraction: f32
+                , steps: i32
+                , scanline: i32
+                }
 
   let shoot h w nss world cam rngs =
     raytracer.render 10 w h nss world cam rngs

@@ -45,7 +45,7 @@ let random_in_unit_sphere rng =
                 let (rng, z) = dist.rand (-1, 1) rng
                 in (rng, vec(x,y,z))
   let outside_sphere = vec3.quadrance >-> (>=1)
-  in iterate_while ((.2) >-> outside_sphere) ((.1) >-> new) (new rng)
+  in iterate_while ((.1) >-> outside_sphere) ((.0) >-> new) (new rng)
 
 type camera = { origin: vec3
               , lower_left_corner: vec3
@@ -123,7 +123,7 @@ let hit [n] (objs: [n]obj) (r: ray) (t_min: f32) (t_max: f32) : hit =
               case #sphere s -> sphere_hit s r t_min closest_so_far
    in match hit'
       case #no_hit -> (hit, closest_so_far)
-      case #hit h -> (#hit h, h.t)).1
+      case #hit h -> (#hit h, h.t)).0
 
 type scatter = #scatter {attenuation: vec3, scattered: ray}
              | #no_scatter
@@ -263,4 +263,4 @@ let main (nx: i32) (ny: i32) (ns: i32) (nobj: i32): [ny][nx]argb.colour =
   let (rng, world) = random_world (nx ^ ny ^ ns) nobj
   let rngs = rnge.split_rng (nx*ny) rng |> unflatten ny nx
   let nss = replicate ny (replicate nx ns)
-  in render 50 nx ny nss world cam rngs |> map (map (.2))
+  in render 50 nx ny nss world cam rngs |> map (map (.1))

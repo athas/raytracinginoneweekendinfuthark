@@ -60,6 +60,8 @@ let step [h] [w] (td: f32) (s: sized_state [h] [w]) : sized_state [h] [w] =
        with samples = map2 (map2 (+)) s.samples nss
        with scanline = chunk_end
 
+let shape_2d 't [n][m] (_: [n][m]t) = (n, m)
+
 module lys : lys with text_content = text_content = {
   type~ state = sized_state [] []
 
@@ -73,10 +75,11 @@ module lys : lys with text_content = text_content = {
     in {world, lookfrom, lookat, rngs, image,
         fraction = 0.1, steps = 0, samples, scanline = 0}
 
-  let event [h] [w] (e: event) (s: sized_state [h] [w]) : state =
+  let event (e: event) (s: state) : state =
+    let (h,w) = shape_2d s.image in
     match e
     case #step td ->
-      step td s
+      step td (s :> sized_state [h] [w])
 
     case #keydown {key} ->
       let ahead = vec3.normalise (s.lookat vec3.- s.lookfrom)
@@ -102,9 +105,10 @@ module lys : lys with text_content = text_content = {
   type text_content = (f32, i32, i32)
   let grab_mouse = false
   let text_format () = "Fraction: %f (%d pixels per frame)\nFPS: %d"
-  let text_content [h] [w] (fps: f32) (s: sized_state [h] [w]) =
-    (s.fraction,
-     t32 (r32 (h * w) * s.fraction),
-     t32 fps)
+  let text_content (fps: f32) (s: state) =
+    let (h,w) = shape_2d s.image
+    in (s.fraction,
+        t32 (r32 (h * w) * s.fraction),
+        t32 fps)
   let text_colour _ = argb.black
 }

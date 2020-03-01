@@ -251,7 +251,7 @@ let render (max_depth: i32) (nx: i32) (ny: i32) (nss: [ny][nx]i32) (world: []obj
   in tabulate_2d ny nx pixel |> reverse
 
 -- ==
--- compiled input { 800 400 200 }
+-- compiled input { 800 400 200 11 }
 
 let main (nx: i32) (ny: i32) (ns: i32) (nobj: i32): [ny][nx]argb.colour =
   let lookfrom = vec(13,2,3)

@@ -235,11 +235,11 @@ let random_world (seed: i32) (n: i32) =
 
   in (rng, world)
 
-let render (max_depth: i32) (nx: i32) (ny: i32) (nss: [ny][nx]i32) (world: []obj) (cam: camera) (rngs: [ny][nx]rng) =
+let render (max_depth: i32) (nx: i64) (ny: i64) (nss: [ny][nx]i32) (world: []obj) (cam: camera) (rngs: [ny][nx]rng) =
   let sample j i (rng, acc) = let (rng, ud) = rand rng
                               let (rng, vd) = rand rng
-                              let u = (r32(i) + ud) / r32(nx)
-                              let v = (r32(j) + vd) / r32(ny)
+                              let u = (f32.i64(i) + ud) / f32.i64(nx)
+                              let v = (f32.i64(j) + vd) / f32.i64(ny)
                               let (rng, r) = get_ray cam u v rng
                               let (rng, col) = color max_depth world r rng
                               in (rng, acc vec3.+ col)
@@ -251,16 +251,16 @@ let render (max_depth: i32) (nx: i32) (ny: i32) (nss: [ny][nx]i32) (world: []obj
   in tabulate_2d ny nx pixel |> reverse
 
 -- ==
--- compiled input { 800 400 200 11 }
+-- compiled input { 800i64 400i64 200 11 }
 
-let main (nx: i32) (ny: i32) (ns: i32) (nobj: i32): [ny][nx]argb.colour =
+let main (nx: i64) (ny: i64) (ns: i32) (nobj: i32): [ny][nx]argb.colour =
   let lookfrom = vec(13,2,3)
   let lookat = vec(0,0,0)
   let dist_to_focus = 10
   let aperture = 0.1
-  let cam = camera lookfrom lookat (vec(0,1,0)) 20 (r32 nx / r32 ny)
+  let cam = camera lookfrom lookat (vec(0,1,0)) 20 (f32.i64 nx / f32.i64 ny)
                    aperture dist_to_focus
-  let (rng, world) = random_world (nx ^ ny ^ ns) nobj
+  let (rng, world) = random_world (i32.i64 nx ^ i32.i64 ny ^ ns) nobj
   let rngs = rnge.split_rng (nx*ny) rng |> unflatten ny nx
   let nss = replicate ny (replicate nx ns)
   in render 50 nx ny nss world cam rngs |> map (map (.1))

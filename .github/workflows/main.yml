@@ -18,7 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - run: sudo apt install wget libgmp-dev libsdl2-dev libsdl2-ttf-dev ocl-icd-libopencl1 opencl-headers
+    - run: sudo apt install wget libgmp-dev libsdl2-dev libsdl2-ttf-dev ocl-icd-libopencl1 ocl-icd-opencl-dev opencl-headers
 
     - name: Install Futhark
       run: |

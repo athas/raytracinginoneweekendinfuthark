@@ -18,6 +18,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - run: sudo apt install wget libgmp-dev libsdl2-dev libsdl2-ttf-dev ocl-icd-libopencl1 opencl-headers
+
     - name: Install Futhark
       run: |
           wget http://futhark-lang.org/releases/futhark-nightly-linux-x86_64.tar.xz

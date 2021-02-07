@@ -151,7 +151,7 @@ let scattering (r: ray) (h: hit_info) (rng: rng) : (rng, scatter) =
     let attenuation = vec(1, 1, 1)
     let (outward_normal, ni_over_nt, cosine) =
       if vec3.dot r.direction h.normal > 0
-      then (vec3.map f32.negate h.normal,
+      then (vec3.map f32.neg h.normal,
             ref_idx,
             ref_idx * vec3.dot r.direction h.normal / vec3.norm r.direction)
       else (h.normal,

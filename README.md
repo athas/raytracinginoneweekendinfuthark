@@ -47,7 +47,7 @@ some other trouble with that), or numerical issues.
 
 ## Running
 
-You will need Futhark 0.12.1 or newer to run this code.  You will also
+You will need Futhark 0.18.6 or newer to run this code.  You will also
 need
 [data2png.py](https://github.com/diku-dk/futhark/blob/master/tools/data2png.py),
 which turns Futhark values into PNG images.  Once these are available,

@@ -77,3 +77,4 @@ The rendering will gradually improve the image quality.
 * [Accelerated Ray Tracing in One Weekend in
   CUDA](https://devblogs.nvidia.com/accelerated-ray-tracing-cuda/).
   See how much low-level work Futhark saves you from!
+* [Ray Tracing the Next Week in Futhark](https://github.com/athas/raytracingthenextweekinfuthark/).

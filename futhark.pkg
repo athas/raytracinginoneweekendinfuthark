@@ -1,6 +1,6 @@
 require {
-  github.com/athas/vector 0.7.0 #f5aaa219a02949d1eb2978f81419cf5614abfa3d
-  github.com/athas/matte 0.1.2 #2ce1a39b29c329504cb2d849e305cbcc17f701d5
-  github.com/diku-dk/cpprandom 1.3.0 #68b67cb55242db59b79d94b5cdf961b2d654e698
-  github.com/diku-dk/lys 0.1.11 #2fef25cc5aa49df8a8a8ae1675391213f97e4cd1
+  github.com/athas/vector 0.7.1 #c8f9f029530cb29db9b2957b80e65dbe893c01df
+  github.com/athas/matte 0.1.3 #ec4243a5f64cb818a4289dbc4953460ea19da12c
+  github.com/diku-dk/cpprandom 1.5.0 #ec96adc06f7a91040b2c1f7f9fdc56b9b2e9f3a3
+  github.com/diku-dk/lys 0.1.29 #1dc062f1d30019d6e2dfa10e6d37fcce743c41f1
 }

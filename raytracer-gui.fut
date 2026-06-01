@@ -6,7 +6,7 @@ module vec3 = raytracer.vec3
 
 type text_content = (f32, i32, i32)
 
-let target_fps : f32 = 24
+def target_fps : f32 = 24
 
 type~ sized_state [h] [w] =
   { world: []raytracer.obj
@@ -20,33 +20,37 @@ type~ sized_state [h] [w] =
   , scanline: i32
   }
 
-let shoot h w nss world cam rngs =
+def shoot h w nss world cam rngs =
   raytracer.render 10 w h nss world cam rngs
-  |> map unzip |> unzip
+  |> map unzip
+  |> unzip
 
-let step [h] [w] (td: f32) (s: sized_state [h] [w]) : sized_state [h] [w] =
-  let fps = 1/td
-  let fraction = (if fps > target_fps
-                  then s.fraction * 1.1
-                  else s.fraction * 0.9)
-                 |> f32.max 0.01 |> f32.min 1
+def step [h] [w] (td: f32) (s: sized_state [h] [w]) : sized_state [h] [w] =
+  let fps = 1 / td
+  let fraction =
+    (if fps > target_fps
+     then s.fraction * 1.1
+     else s.fraction * 0.9)
+    |> f32.max 0.01
+    |> f32.min 1
   let chunk_size = t32 (f32.i64 h * fraction)
   let chunk_start = s.scanline
   let chunk_end = (chunk_start + chunk_size) % i32.i64 h
-
   let in_chunk j =
     if chunk_start < chunk_end
     then j >= chunk_start && j < chunk_end
     else j >= chunk_start || j < chunk_end
-
   let samples j _ = if in_chunk (i32.i64 j) then 1 else 0
-
   let dist_to_focus = 10
   let aperture = 0.1
-  let cam = raytracer.camera
-            s.lookfrom s.lookat (raytracer.vec(0,1,0)) 20
-            (f32.i64 w / f32.i64 h) aperture dist_to_focus
-
+  let cam =
+    raytracer.camera s.lookfrom
+                     s.lookat
+                     (raytracer.vec (0, 1, 0))
+                     20
+                     (f32.i64 w / f32.i64 h)
+                     aperture
+                     dist_to_focus
   let nss = tabulate_2d h w samples
   let (rngs, image) = shoot h w nss s.world cam s.rngs
   let comb cur_ns cur new_ns new =
@@ -60,55 +64,61 @@ let step [h] [w] (td: f32) (s: sized_state [h] [w]) : sized_state [h] [w] =
        with samples = map2 (map2 (+)) s.samples nss
        with scanline = chunk_end
 
-let shape_2d 't [n][m] (_: [n][m]t) = (n, m)
+def shape_2d 't [n] [m] (_: [n][m]t) = (n, m)
 
 module lys : lys with text_content = text_content = {
   type~ state = sized_state [] []
 
-  let init seed h w : state =
+  def init seed h w : state =
     let (rng, world) = raytracer.random_world (i32.u32 seed) 11
-    let lookfrom = raytracer.vec(13,2,3)
-    let lookat = raytracer.vec(0,0,0)
-    let rngs = raytracer.rnge.split_rng (h*w) rng |> unflatten h w
+    let lookfrom = raytracer.vec (13, 2, 3)
+    let lookat = raytracer.vec (0, 0, 0)
+    let rngs = raytracer.rnge.split_rng (h * w) rng |> unflatten
     let (rngs, image) = (rngs, tabulate_2d h w (\_ _ -> argb.black))
     let samples = tabulate_2d h w (\_ _ -> 0)
-    in {world, lookfrom, lookat, rngs, image,
-        fraction = 0.1, steps = 0, samples, scanline = 0}
+    in { world
+       , lookfrom
+       , lookat
+       , rngs
+       , image
+       , fraction = 0.1
+       , steps = 0
+       , samples
+       , scanline = 0
+       }
 
-  let event (e: event) (s: state) : state =
-    let (h,w) = shape_2d s.image in
-    match e
-    case #step td ->
-      step td (s :> sized_state [h] [w])
+  def event (e: event) (s: state) : state =
+    let (h, w) = shape_2d s.image
+    in match e
+       case #step td ->
+         step td (s :> sized_state [h] [w])
+       case #keydown {key} ->
+         let ahead = vec3.normalise (s.lookat vec3.- s.lookfrom)
+         in if key == SDLK_DOWN
+            then init 123 h w with lookfrom = s.lookfrom vec3.+ ahead
+                              with world = s.world
+            else if key == SDLK_UP
+            then init 123 h w with lookfrom = s.lookfrom vec3.- ahead
+                              with world = s.world
+            else s
+       case _ -> s
 
-    case #keydown {key} ->
-      let ahead = vec3.normalise (s.lookat vec3.- s.lookfrom)
-      in
-      if key == SDLK_DOWN
-      then init 123 h w
-           with lookfrom = s.lookfrom vec3.+ ahead
-           with world = s.world
-      else if key == SDLK_UP
-      then init 123 h w
-           with lookfrom = s.lookfrom vec3.- ahead
-           with world = s.world
-      else s
-
-    case _ -> s
-
-  let resize h w (s: state) =
+  def resize h w (s: state) =
     init (u32.i32 s.steps) h w with lookfrom = s.lookfrom
                                with lookat = s.lookat
 
-  let render (s: state) = s.image
+  def render (s: state) = s.image
 
   type text_content = (f32, i32, i32)
-  let grab_mouse = false
-  let text_format () = "Fraction: %f (%d pixels per frame)\nFPS: %d"
-  let text_content (fps: f32) (s: state) =
-    let (h,w) = shape_2d s.image
-    in (s.fraction,
-        t32 (f32.i64 (h * w) * s.fraction),
-        t32 fps)
-  let text_colour _ = argb.black
+  def grab_mouse = false
+  def text_format () = "Fraction: %f (%d pixels per frame)\nFPS: %d"
+
+  def text_content (fps: f32) (s: state) =
+    let (h, w) = shape_2d s.image
+    in ( s.fraction
+       , t32 (f32.i64 (h * w) * s.fraction)
+       , t32 fps
+       )
+
+  def text_colour _ = argb.black
 }
